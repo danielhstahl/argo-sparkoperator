@@ -12,7 +12,7 @@
 * helm repo add argo https://argoproj.github.io/argo-helm
 * helm update
 * helm install argo-wf argo/argo -f argo.yml
-* kubectl -n argo port-forward deployment/argo-wf-server 2746:2746
+* kubectl port-forward deployment/argo-wf-server 2746:2746
 * argo submit --watch argo_wf.yml
 
 
