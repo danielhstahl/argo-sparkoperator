@@ -22,7 +22,8 @@ object XGB {
         StructField("class", StringType, true)
       )
     )
-    val rawInput = spark.read.schema(schema).csv("iris.csv")
+    val rawInput =
+      spark.read.schema(schema).option("header", "true").csv("iris.csv")
 
     val stringIndexer = new StringIndexer()
       .setInputCol("class")

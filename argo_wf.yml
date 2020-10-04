@@ -32,7 +32,7 @@ spec:
                 spec:
                     type: Scala
                     mode: cluster
-                    image: "xgboost:latest"
+                    image: "localhost:5000/xgboost"
                     imagePullPolicy: Always
                     mainClass: com.dhs.xgboost.XGB
                     mainApplicationFile: "local:///opt/spark/work-dir/xgb.jar"
