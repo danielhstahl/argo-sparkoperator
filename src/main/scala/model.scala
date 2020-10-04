@@ -54,6 +54,8 @@ object XGB {
     xgbClassifier.setMaxDepth(2)
 
     val xgbClassificationModel = xgbClassifier.fit(xgbInput)
+    xgbClassificationModel.write.overwrite().save("xgboost")
+    spark.stop()
 
   }
 }

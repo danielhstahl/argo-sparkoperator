@@ -41,13 +41,12 @@ spec:
                         type: OnFailure
                         onFailureRetries: 3
                         onFailureRetryInterval: 10
-
                     volumes:
-                        -   name: spark-data
-                            persistentVolumeClaim:
-                                claimName: persistentvolumeclaim/rwxpvc
-                        -   name: spark-work
-                            emptyDir: {}
+                        -   hostPath:
+                                path: /tmp/spark
+                                type: Directory
+                            name: spark-data
+                            
                     driver:
                         cores: 1
                         coreLimit: "1200m"
@@ -56,7 +55,7 @@ spec:
                             version: 2.4.5
                         serviceAccount: spark
                         volumeMounts:
-                            - name: spark-work
+                            - name: spark-data
                               mountPath: /tmp/spark
                     executor:
                         cores: 1
@@ -67,8 +66,7 @@ spec:
                         volumeMounts:
                             -   name: spark-work
                                 mountPath: /tmp/spark
-                            -   name: spark-data
-                                mountPath: /tmp/spark
+ 
     # Resource templates can have output parameters extracted from fields of the
     # resource. Two techniques are provided: jsonpath and a jq filter.
         outputs:
