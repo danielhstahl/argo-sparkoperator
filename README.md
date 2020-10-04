@@ -13,6 +13,10 @@
 * helm update
 * helm install argo-wf argo/argo -f argo.yml
 * kubectl port-forward deployment/argo-wf-server 2746:2746
+* kubectl apply -f persistent_storage.yml
+* mkdir /tmp/spark
+* cp iris.csv /tmp/spark
+* docker build . -t xgboost
 * argo submit --watch argo_wf.yml
 
 
