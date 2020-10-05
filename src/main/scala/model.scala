@@ -9,7 +9,11 @@ import org.apache.spark.sql.types.{
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.ml.feature.StringIndexer
 import ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier
-
+import org.apache.spark.ml.{Pipeline, PipelineModel}
+import ml.combust.mleap.spark.SparkSupport._
+import resource._
+import ml.combust.bundle.BundleFile
+import org.apache.spark.ml.bundle.SparkBundleContext
 object XGB {
   def main(args: Array[String]): Unit = {
     println("started program")
@@ -33,17 +37,12 @@ object XGB {
     val stringIndexer = new StringIndexer()
       .setInputCol("class")
       .setOutputCol("classIndex")
-      .fit(rawInput)
-    val labelTransformed = stringIndexer.transform(rawInput).drop("class")
 
     val vectorAssembler = new VectorAssembler()
       .setInputCols(
         Array("sepal length", "sepal width", "petal length", "petal width")
       )
       .setOutputCol("features")
-    val xgbInput = vectorAssembler
-      .transform(labelTransformed)
-      .select("features", "classIndex")
 
     val xgbParam = Map(
       "eta" -> 0.1f,
@@ -59,9 +58,23 @@ object XGB {
 
     xgbClassifier.setMaxDepth(2)
 
-    val xgbClassificationModel = xgbClassifier.fit(xgbInput)
+    val scorePipeline = new Pipeline()
+      .setStages(Array(vectorAssembler, xgbClassifier))
+
+    val trainPipeline = new Pipeline()
+      .setStages(Array(stringIndexer, scorePipeline))
+
+    val xgbClassificationModel = trainPipeline.fit(rawInput)
     println("model fit")
     xgbClassificationModel.write.overwrite().save("/data/xgboost")
+
+    val sbc = SparkBundleContext().withDataset(
+      xgbClassificationModel.transform(rawInput)
+    )
+    for (bf <- managed(BundleFile("jar:file:/data/xgboosttest.zip"))) {
+      xgbClassificationModel.writeBundle.save(bf)(sbc).get
+    }
+
     spark.stop()
 
   }
