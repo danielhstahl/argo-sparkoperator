@@ -1,31 +1,40 @@
-# spark-pi.yaml
-
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: spark-pi
-  namespace: default
+    name: xgboost-job-manual
+    namespace: default
 spec:
-  type: Scala
-  mode: cluster
-  image: "gcr.io/spark-operator/spark:v2.4.5"
-  imagePullPolicy: Always
-  mainClass: org.apache.spark.examples.SparkPi
-  mainApplicationFile: "local:///opt/spark/examples/jars/spark-examples_2.11-2.4.5.jar"
-  sparkVersion: "2.4.5"
-  restartPolicy:
-    type: Never
-
-  driver:
-    cores: 1
-    coreLimit: "1200m"
-    memory: "512m"
-    labels:
-      version: 2.4.5
-    serviceAccount: spark
-  executor:
-    cores: 1
-    instances: 1
-    memory: "512m"
-    labels:
-      version: 2.4.5
+    type: Scala
+    mode: cluster
+    image: "localhost:5000/xgboost"
+    imagePullPolicy: Always
+    mainClass: com.dhs.xgboost.XGB
+    mainApplicationFile: "local:///opt/spark/work-dir/xgb.jar"
+    sparkVersion: "2.4.5"
+    restartPolicy:
+      type: Never
+    volumes:
+        -   hostPath:
+                path: /data
+                type: Directory
+            name: spark-data
+            
+    driver:
+        cores: 1
+        coreLimit: "1200m"
+        memory: "512m"
+        labels:
+            version: 2.4.5
+        serviceAccount: spark
+        volumeMounts:
+            - name: spark-data
+              mountPath: /data
+    executor:
+        cores: 2
+        instances: 2
+        memory: "512m"
+        labels:
+            version: 2.4.5
+        volumeMounts:
+            -   name: spark-data
+                mountPath: /data

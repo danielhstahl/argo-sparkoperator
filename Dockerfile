@@ -6,5 +6,5 @@ COPY project/metals.sbt project/metals.sbt
 COPY project/build.properties project/build.properties
 RUN sbt assembly
 
-FROM gcr.io/spark-operator/spark:v2.4.5
+FROM gcr.io/spark-operator/spark-py:v2.4.5
 COPY --from=build /root/target/scala-2.11/*.jar ./xgb.jar

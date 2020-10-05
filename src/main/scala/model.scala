@@ -12,6 +12,7 @@ import ml.dmlc.xgboost4j.scala.spark.XGBoostClassifier
 
 object XGB {
   def main(args: Array[String]): Unit = {
+    println("started program")
     val spark = SparkSession.builder().getOrCreate()
     val schema = new StructType(
       Array(
@@ -22,9 +23,13 @@ object XGB {
         StructField("class", StringType, true)
       )
     )
+    println("spark instantiated")
     val rawInput =
-      spark.read.schema(schema).option("header", "true").csv("iris.csv")
-
+      spark.read
+        .schema(schema)
+        .option("header", "true")
+        .csv("/data/iris.csv")
+    println("data read")
     val stringIndexer = new StringIndexer()
       .setInputCol("class")
       .setOutputCol("classIndex")
@@ -55,7 +60,8 @@ object XGB {
     xgbClassifier.setMaxDepth(2)
 
     val xgbClassificationModel = xgbClassifier.fit(xgbInput)
-    xgbClassificationModel.write.overwrite().save("xgboost")
+    println("model fit")
+    xgbClassificationModel.write.overwrite().save("/data/xgboost")
     spark.stop()
 
   }
